@@ -73,8 +73,8 @@ unsigned long paletteTimeout = 0;
 //#define CLK_PIN   4
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER RGB
-#define NUM_STRIPS 8
-#define NUM_LEDS_PER_STRIP 100
+#define NUM_STRIPS 19
+#define NUM_LEDS_PER_STRIP 38
 #define NUM_LEDS NUM_LEDS_PER_STRIP * NUM_STRIPS
 CRGB leds[NUM_LEDS];
 
@@ -189,7 +189,7 @@ void setup() {
   setupWeb();
 
   // three-wire LEDs (WS2811, WS2812, NeoPixel)
-  //  FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
   // four-wire LEDs (APA102, DotStar)
   //FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
