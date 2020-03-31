@@ -29,6 +29,8 @@
 #include <SPIFFS.h>
 #include <EEPROM.h>
 
+
+
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001008)
 #warning "Requires FastLED 3.1.8 or later; check github for latest code."
 #endif
@@ -76,10 +78,15 @@ unsigned long paletteTimeout = 0;
 #define NUM_STRIPS 19
 #define NUM_LEDS_PER_STRIP 38
 #define NUM_LEDS NUM_LEDS_PER_STRIP * NUM_STRIPS
-CRGB leds[NUM_LEDS];
 
-#define MILLI_AMPS         4000 // IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
-#define FRAMES_PER_SECOND  120
+// This is a canny trick to reserve a placeholder for out 
+// of range XY coordinates  
+CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
+CRGB* const leds( leds_plus_safety_pixel + 1);
+//CRGB leds[NUM_LEDS];
+
+#define MILLI_AMPS         10000 // IMPORTANT: set the max milli-Amps of your power supply (10A = 10000mA)
+#define FRAMES_PER_SECOND  70    // With 450 LEDs we'll be lucky :-)
 
 // -- The core to run FastLED.show()
 #define FASTLED_SHOW_CORE 0
@@ -92,6 +99,7 @@ CRGB leds[NUM_LEDS];
 #include "secrets.h"
 #include "wifi.h"
 #include "web.h"
+#include "xy.h"
 
 // wifi ssid and password should be added to a file in the sketch named secrets.h
 // the secrets.h file should be added to the .gitignore file and never committed or
@@ -190,19 +198,6 @@ void setup() {
 
   // three-wire LEDs (WS2811, WS2812, NeoPixel)
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-
-  // four-wire LEDs (APA102, DotStar)
-  //FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-
-  // Parallel output: 13, 12, 27, 33, 15, 32, 14, SCL
-  FastLED.addLeds<LED_TYPE, 13, COLOR_ORDER>(leds, 0, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  FastLED.addLeds<LED_TYPE, 12, COLOR_ORDER>(leds, NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  FastLED.addLeds<LED_TYPE, 27, COLOR_ORDER>(leds, 2 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  FastLED.addLeds<LED_TYPE, 33, COLOR_ORDER>(leds, 3 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  FastLED.addLeds<LED_TYPE, 15, COLOR_ORDER>(leds, 4 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  FastLED.addLeds<LED_TYPE, 32, COLOR_ORDER>(leds, 5 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  FastLED.addLeds<LED_TYPE, 14, COLOR_ORDER>(leds, 6 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
-  FastLED.addLeds<LED_TYPE, SCL, COLOR_ORDER>(leds, 7 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
 
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
   
