@@ -27,7 +27,7 @@
  */
  
       
-int XY (uint8_t x, uint8_t y) {
+int XY(uint8_t x, uint8_t y) {
   //Declare how many pixels are in each length
   const uint8_t LEDNUM_SHORT = 10;
   const uint8_t LEDNUM_LONG  = 40;
@@ -61,7 +61,7 @@ int XY (uint8_t x, uint8_t y) {
       };
       // compensate for short strips
       if (x > 14) {
-        s -= SHORTFALL;   // i.e. those neopixels that are missing
+        s -= SHORTFALL;   // i.e. subtract those neopixels that are missing
       }
     }
   }

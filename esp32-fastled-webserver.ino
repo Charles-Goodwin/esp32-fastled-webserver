@@ -30,7 +30,6 @@
 #include <EEPROM.h>
 
 
-
 #if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001008)
 #warning "Requires FastLED 3.1.8 or later; check github for latest code."
 #endif
@@ -75,12 +74,16 @@ unsigned long paletteTimeout = 0;
 //#define CLK_PIN   4
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER RGB
-#define NUM_STRIPS 19
-#define NUM_LEDS_PER_STRIP 38
-#define NUM_LEDS NUM_LEDS_PER_STRIP * NUM_STRIPS
+//Irregular Matrix fully defined
+#define NUM_SHORT_STRIPS 11
+#define NUM_LONG_STRIPS 8
+#define NUM_LEDS_PER_SHORT_STRIP 38
+#define NUM_LEDS_PER_LONG_STRIP 13
+#define NUM_TOTAL_STRIPS (NUM_SHORT_STRIPS + NUM_LONG_STRIPS)
+#define NUM_LEDS (NUM_LEDS_PER_LONG_STRIP * NUM_LONG_STRIPS) + (NUM_LEDS_PER_SHORT_STRIP * NUM_SHORT_STRIPS)
 
-// This is a canny trick to reserve a placeholder for out 
-// of range XY coordinates  
+// By reverting to pointers we can reserve 0 as our invalid index 
+// For a full explanation, please refer to the FASTLED XY example
 CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
 CRGB* const leds( leds_plus_safety_pixel + 1);
 //CRGB leds[NUM_LEDS];
@@ -92,14 +95,12 @@ CRGB* const leds( leds_plus_safety_pixel + 1);
 #define FASTLED_SHOW_CORE 0
 
 #include "patterns.h"
-
 #include "field.h"
 #include "fields.h"
-
 #include "secrets.h"
 #include "wifi.h"
 #include "web.h"
-#include "xy.h"
+//#include "xy.h"
 
 // wifi ssid and password should be added to a file in the sketch named secrets.h
 // the secrets.h file should be added to the .gitignore file and never committed or
