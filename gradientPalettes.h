@@ -465,3 +465,10 @@ DEFINE_GRADIENT_PALETTE( Blue_Cyan_Yellow_gp ) {
   191,  42,255, 45,
   255, 255,255,  0};
 
+// Gradient palette "Code_Fall
+// Created for emulating code rain from the movie, The Matrix
+// Size: 20-30 bytes of program space.
+  DEFINE_GRADIENT_PALETTE( Code_Fall_gp ) {
+    0,    230,  230,    230,
+    5,    50,   255,    50,
+    30,    0,    0,      0};

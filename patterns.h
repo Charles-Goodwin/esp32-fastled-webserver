@@ -25,6 +25,7 @@
 #include "palettes.h"
 #include "twinkleFox.h"
 #include "xy.h"
+#include "readFile.h"
 
 void rainbow()
 {
@@ -94,6 +95,125 @@ void showSolidColor()
   fill_solid(leds, NUM_LEDS, solidColor);
 }
 
+// My first go at flying the Union Jack flag
+// Read csv file from SPIFFS to hold the colour anchors for each pixel and then poll through the colour
+// gradients to give the impression the flag is waving in the wind
+// Inputs:
+// Filename refers to a csv file that holds a palette index for eaxh pixel you have in your matrix
+// palette represents the colours referenced by the csv file
+void waveFlag(char fileName[50], CRGBPalette16 palette) {
+  static uint8_t strip[NUM_LEDS];
+  static uint8_t firstTime = 1;
+  const uint8_t freq = 4;  // wave frequency 
+  const uint8_t slope = 5; //higher = milder
+  
+  if (firstTime) {
+    //load up strip with color indices
+    FetchColorsFromFile("/unionJack.csv", strip);
+    firstTime = 0;
+    
+    //Add some sloped waves to the flag
+    for ( int i = 1; i < NUM_TOTAL_STRIPS; i++) {
+      for (int j = 1; j < NUM_LEDS_PER_LONG_STRIP; j++) {
+        strip[XY(i,j)]+= mod8((i*freq) + (j/slope), 32);
+      }
+    }
+  }
+  else {
+    for ( int i = 0; i < NUM_LEDS; i++) {
+      //Advance colours
+      strip[i] = mod8((strip[i] + freq), 32);
+      //assign colors to leds
+      leds[i] = ColorFromPalette(palette, strip[i]);
+    }
+  }
+}
+
+void unionJack()
+{
+  waveFlag("/unionJack.csv", UnionJack_p);
+}
+
+
+// My first stab at emulating the iconic raining code from the movie The Matrix
+// The Palette parameter allows you to use an alternative to the traditional green monitor effect
+void codeFall(CRGBPalette16 palette) {
+  //Render all the neopixels Black
+  fill_solid(leds, NUM_LEDS, CRGB::Black);  
+
+  //Declare a Trail type
+  // Trail comprises of x, y coords, governing throttle, and life span
+  typedef struct Trail{
+    uint8_t x;
+    uint8_t y;
+    uint8_t throttle; //higher reduces speed, lower increases speed (timer reset value)
+    uint8_t timer;  //advance every time timer expires 
+    uint8_t lifeSpan; // determines if trail reaches the bottom
+  } ;
+
+  // Declare a list of Trails that we will track
+  Trail trailList[NUM_TRAILS];
+  
+  // Add entropy to random number generator; we use a lot of it.
+  random16_add_entropy(random(256));
+
+  //color picker for our pallette
+  uint8_t colorIndex;
+
+  // Dim every cell by 10% (26/256) each time
+  for ( uint16_t i = 0; i < NUM_LEDS; i++) {
+    leds[i].fadeLightBy(26);
+  }
+
+  //Go through the trails and advance them forward where timers have expired
+  for (uint8_t i = 0; i < NUM_TRAILS; i++) {
+    //Check if Trail is active
+    if (trailList[i].lifeSpan > 0) {
+      //check if wait is over
+      if (trailList[i].timer > 0) {
+        //coontinue with countdown of waiting
+        trailList[i].timer--;
+      }
+      else {
+        //Advance trail down one
+        trailList[i].y --;
+        // Deplete the life span
+        trailList[i].lifeSpan --;
+        //Randomly select a colour from the first four palette colours
+        colorIndex = random8(4);
+        //Assign the color to the head of the trail
+        leds[XY(trailList[i].x,trailList[i].y)] = ColorFromPalette(palette, colorIndex);
+        //Set the tail of the trail 
+        leds[XY(trailList[i].x, trailList[i].y + 1)] = ColorFromPalette(palette, colorIndex + 4);
+        leds[XY(trailList[i].x, trailList[i].y + 2)] = ColorFromPalette(palette, colorIndex + 8);
+        // The remaining part of the tail will fade as part of the general dimming
+
+        //Reset the timer
+        trailList[i].timer = trailList[i].throttle;
+        //Trail's life ends at reaching the bottom 
+        if (trailList[i].y == 0) {trailList[i].lifeSpan = 0;}
+      }
+    }
+    else {
+      //Create a new Trail
+      //Pick a random column
+      trailList[i].x = random8(NUM_TOTAL_STRIPS);
+      //Built in random pause by placing starting height position beyond top led)
+      trailList[i].y = random8(NUM_LEDS_PER_LONG_STRIP/3) + NUM_LEDS_PER_LONG_STRIP;
+      trailList[i].throttle = random8(31) + 20; // Higher is slower; Lower is faster (Range:20-50)
+      trailList[i].timer = 0;
+      //Default lifespan for Trail to reach the bottom
+      trailList[i].lifeSpan = trailList[i].y;
+      //  Once in a while shorten the lifespan so that the trail stops short
+      if (!(random8(5)%5)) {trailList[i].lifeSpan -= NUM_LEDS_PER_LONG_STRIP * random8(75) / 100;}
+    }
+  }
+}
+
+void codeFall(){
+  codeFall(Code_Fall_gp);
+}
+
 // based on FastLED example Fire2012WithPalette: https://github.com/FastLED/FastLED/blob/master/examples/Fire2012WithPalette/Fire2012WithPalette.ino
 void heatMap(CRGBPalette16 palette, bool up)
 {
@@ -160,6 +280,8 @@ void water()
 {
   heatMap(IceColors_p, false);
 }
+
+
 
 // Pride2015 by Mark Kriegsman: https://gist.github.com/kriegsman/964de772d64c502760e5
 // This function draws rainbows with an ever-changing,
@@ -292,6 +414,10 @@ PatternAndNameList patterns = {
   { bpm, "bpm" },
 
   { showSolidColor,         "Solid Color" },
+  
+  // Home made patterns
+  { unionJack,      "Fly Union Jack" },
+  { codeFall,        "Matrix code drop" },
 };
 
 const uint8_t patternCount = ARRAY_SIZE(patterns);

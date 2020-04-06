@@ -106,6 +106,28 @@ const TProgmemRGBPalette16 IcyBlue_p FL_PROGMEM =
 
 CRGBPalette16 IceColors_p = CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::Aqua, CRGB::White);
 
+// red white and blue shades to fly the Union Jack
+// Shade numbers run from dark to light for the colours
+// Red    48 - 80
+// White  96 - 128
+// Blue   0  - 32  
+ 
+CRGB lightRed = CRGB::Red;
+CRGB darkRed = CRGB::FireBrick;
+CRGB lightBlue = CRGB::LightSkyBlue;
+CRGB darkBlue = CRGB::DarkBlue;
+CRGB lightGrey = CRGB::Grey;
+CRGB darkGrey = CRGB::DarkGrey;
+CRGB black = CRGB::Black;
+
+const TProgmemRGBPalette16 UnionJack_p FL_PROGMEM =
+{ 
+      darkBlue, lightBlue,  darkBlue, darkRed,
+      lightRed, darkRed,    darkGrey, lightGrey,
+      darkGrey, black,      black,    black,
+      black,    black,      black,    black 
+};
+
 #include "gradientPalettes.h"
 
 const CRGBPalette16 palettes[] = {
@@ -127,6 +149,7 @@ const CRGBPalette16 palettes[] = {
   RetroC9_p,
   RedGreenWhite_p,
   Holly_p,
+  UnionJack_p,
 
   Sunset_Real_gp,
   es_rivendell_15_gp,
@@ -161,6 +184,7 @@ const CRGBPalette16 palettes[] = {
   BlacK_Magenta_Red_gp,
   BlacK_Red_Magenta_Yellow_gp,
   Blue_Cyan_Yellow_gp,
+  Code_Fall_gp
 };
 
 const uint8_t paletteCount = ARRAY_SIZE(palettes);
@@ -184,6 +208,7 @@ const String paletteNames[paletteCount] = {
   "Retro C9",
   "Red, Green & White",
   "Holly",
+  "Union Jack",
 
   "Sunset_Real",
   "es_rivendell_15",
@@ -218,6 +243,7 @@ const String paletteNames[paletteCount] = {
   "BlacK_Magenta_Red",
   "BlacK_Red_Magenta_Yellow",
   "Blue_Cyan_Yellow",
+  "Code Fall"
 };
 
 CRGBPalette16 currentPalette( CRGB::Black);

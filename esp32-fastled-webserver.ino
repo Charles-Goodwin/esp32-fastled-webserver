@@ -77,10 +77,13 @@ unsigned long paletteTimeout = 0;
 //Irregular Matrix fully defined
 #define NUM_SHORT_STRIPS 11
 #define NUM_LONG_STRIPS 8
-#define NUM_LEDS_PER_SHORT_STRIP 38
-#define NUM_LEDS_PER_LONG_STRIP 13
+#define NUM_LEDS_PER_SHORT_STRIP 13
+#define NUM_LEDS_PER_LONG_STRIP 38
 #define NUM_TOTAL_STRIPS (NUM_SHORT_STRIPS + NUM_LONG_STRIPS)
 #define NUM_LEDS (NUM_LEDS_PER_LONG_STRIP * NUM_LONG_STRIPS) + (NUM_LEDS_PER_SHORT_STRIP * NUM_SHORT_STRIPS)
+
+// Falling Code parameters
+#define NUM_TRAILS NUM_TOTAL_STRIPS
 
 // By reverting to pointers we can reserve 0 as our invalid index 
 // For a full explanation, please refer to the FASTLED XY example
